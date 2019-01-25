@@ -1,29 +1,35 @@
 import React, { Component } from 'react';
 
+const withdraw = (a, b) => a - b; 
+const deposit =  (a, b) => a + b;
+
 export default class Account extends Component {
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      balance: 0
-    }
-
-    this.handleDepositClick = this.handleDepositClick.bind(this)
+  state = {
+    balance: 0,
+    message: '',
   }
 
-  handleDepositClick(e) {
+  handleClick = (action) => (e) => {
     e.preventDefault();
-    if (isNaN(this.refs.amount.value)) {
-      console.log("Not a number");
+    const amount = +this.refs.amount.value;
+    let message = '';
+    let balance = this.state.balance;
+    if (isNaN(amount) || amount < 0) {
+      message = 'Enter a valid number';
+    } else {
+      const newBalance = action(balance, amount);
+      if (newBalance < 0) {
+        message = 'You Poor!';
+      } else {
+        balance = newBalance;
+      }
     }
-    else {
-      let amount = +this.refs.amount.value;
-      let newBalance = this.state.balance + amount;
-      this.setState({
-        balance: newBalance
-      })
-      this.refs.amount.value = '';
-    }
+
+    this.refs.amount.value = '';
+    return this.setState({
+      balance,
+      message,
+    })
   }
 
   render() {
@@ -35,9 +41,11 @@ export default class Account extends Component {
     return (
       <div className="account">
         <h2>{this.props.name}</h2>
+        <p>{this.state.message}</p>
         <div className={balanceClass}>${this.state.balance}</div>
         <input type="text" placeholder="enter an amount" ref="amount" />
-        <input type="button" value="Deposit" onClick={this.handleDepositClick} />
+        <input type="button" value="Deposit" onClick={this.handleClick(deposit)} />
+        <input type="button" value="Withdraw" onClick={this.handleClick(withdraw)} />
       </div>
     )
   }
